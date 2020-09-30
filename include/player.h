@@ -22,8 +22,10 @@ private:
   ros::NodeHandle nh;
   ros::Timer      timer;
   ros::Publisher  pubJointState;
+  ros::Publisher  pubJoint;
 
-  sensor_msgs::JointState jointState;
+  sensor_msgs::JointState     jointState;
+  std_msgs::Float32MultiArray joint;
 
   int   count, max;
   float data[FILE_SIZE][12];

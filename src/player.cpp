@@ -2,12 +2,21 @@
 
 Player::Player() {
   pubJointState = nh.advertise<sensor_msgs::JointState>("joint_states_source", 1);
+  pubJoint      = nh.advertise<std_msgs::Float32MultiArray>("angle", 1);
 
   timer = nh.createTimer(ros::Duration(0.05), &Player::timerCallback, this);
 
   jointState.header.stamp = ros::Time::now();
   jointState.name.resize(12);
   jointState.position.resize(12);
+  for (int i = 0; i < 12; i++) {
+    jointState.position[i] = 0;
+  }
+
+  joint.data.resize(12);
+  for (int i = 0; i < 12; i++) {
+    joint.data[i] = 0;
+  }
 
   jointState.name[0]  =   "front_left_shoulder";
   jointState.name[1]  =   "front_left_leg";
@@ -22,10 +31,6 @@ Player::Player() {
   jointState.name[10] =   "rear_right_leg";
   jointState.name[11] =   "rear_right_foot";
 
-  for (int i = 0; i < 12; i++) {
-    jointState.position[i] = 0;
-  }
-
   load();
 }
 
@@ -36,7 +41,7 @@ void Player::load(){
   FILE  *fp = NULL;
   double buf[12];
 
-  if ( ( fp = fopen("/home/kuribayashi/catkin_ws/file.csv", "r") ) == NULL) {
+  if ( ( fp = fopen("/home/spot/catkin_ws/src/csv/log/file.csv", "r") ) == NULL) {
     ROS_INFO_STREAM("file open error...");
     exit(EXIT_FAILURE);
   }else{
@@ -57,12 +62,22 @@ void Player::load(){
   fclose(fp);
 }
 
-void Player::timerCallback(const ros::TimerEvent &) {
-  jointState.header.stamp = ros::Time::now();
+// void Player::timerCallback(const ros::TimerEvent &) {
+//   jointState.header.stamp = ros::Time::now();
+//
+//   if(count < max) {
+//     for (int i = 0; i < 12; i++) {
+//       jointState.position[i] = data[count][i];
+//     }
+//   }
+//   pubJointState.publish(jointState);
+//   count++;
+// }
 
+void Player::timerCallback(const ros::TimerEvent &) {
   if(count < max) {
     for (int i = 0; i < 12; i++) {
-      jointState.position[i] = data[count][i];
+      joint.data[i] = data[count][i];
     }
   }
   pubJointState.publish(jointState);
